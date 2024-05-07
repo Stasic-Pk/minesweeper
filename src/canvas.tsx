@@ -13,6 +13,8 @@ const Canvas = () => {
       return
     }
     
+    // minesweeper
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const size = 20
@@ -26,6 +28,15 @@ const Canvas = () => {
       y: number
     }[][] = []
 
+    function getRandomInt(max: any) {
+      const int = Math.floor((Math.random() * max) - 0.60)
+      if (int < 0) {
+        return 0
+      } else {
+        return int
+      }
+    }
+
     for(let i = 0; i < height; i++) {
       cells[i] = []
       for(let j = 0; j < width; j++) {
@@ -38,12 +49,21 @@ const Canvas = () => {
       }
     }
 
+    for(let i = 0; i < height; i++) {
+      for(let j = 0; j < width; j++) {
+        cells[i][j].mine = getRandomInt(2)
+        if(cells[i][j].mine === 1) {
+          cells[i][j].number = 0
+        }
+      }
+    }
+
     const flag = (array: any) => {
       const event = window.event as MouseEvent
       const x = Math.floor(event.clientX / size)
       const y = Math.floor(event.clientY / size)
 
-      if (array[y][x].mine == 0) {
+      if (array[y][x].mine === 0) {
         array[y][x].mine = 1
         array[y][x].number = 0
       } else {
@@ -55,7 +75,7 @@ const Canvas = () => {
     const paint = (array: any) => {
       for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
-          if (array[i][j].mine == 1) {
+          if (array[i][j].mine === 1) {
             ctx.fillStyle = 'black'
             ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
           } else {
