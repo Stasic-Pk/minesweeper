@@ -17,23 +17,25 @@ const Canvas = () => {
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const size = 20
+    const size = 32
+    const fontSize = 12
     const width = window.innerWidth / size
     const height = window.innerHeight / size
 
     const cells: {
-      mine: number,
-      number: number,
+      mine: boolean,
+      field: boolean,
+      flag: boolean,
       x: number,
       y: number
     }[][] = []
 
     function getRandomInt(max: any) {
       const int = Math.floor((Math.random() * max) - 0.60)
-      if (int < 0) {
-        return 0
+      if (int <= 0) {
+        return false
       } else {
-        return int
+        return true
       }
     }
 
@@ -41,8 +43,9 @@ const Canvas = () => {
       cells[i] = []
       for(let j = 0; j < width; j++) {
         cells[i][j] = {
-          mine: 0,
-          number: 1,
+          mine: false,
+          field: true,
+          flag: false,
           x: j,
           y: i
         }
@@ -52,10 +55,23 @@ const Canvas = () => {
     for(let i = 0; i < height; i++) {
       for(let j = 0; j < width; j++) {
         cells[i][j].mine = getRandomInt(2)
-        if(cells[i][j].mine === 1) {
-          cells[i][j].number = 0
+        if(cells[i][j].mine === true) {
+          cells[i][j].field = false
         }
       }
+    }
+
+    const numberOfBombs = (i: number, j: number, array: any) => {
+      let number: number = 0
+      if (array[i - 1][j - 1] !== undefined && array[i - 1][j - 1].bomb === true) { number++ }
+      if (array[i - 1][j] !== undefined && array[i - 1][j].bomb === true) { number++ }
+      if (array[i][j - 1] !== undefined && array[i][j - 1].bomb === true) { number++ }
+      if (array[i + 1][j - 1] !== undefined && array[i + 1][j - 1].bomb === true) { number++ }
+      if (array[i - 1][j + 1] !== undefined && array[i - 1][j + 1].bomb === true) { number++ }
+      if (array[i + 1][j + 1] !== undefined && array[i + 1][j + 1].bomb === true) { number++ }
+      if (array[i + 1][j] !== undefined && array[i + 1][j].bomb === true) { number++ }
+      if (array[i][j + 1] !== undefined && array[i][j + 1].bomb === true) { number++ }
+      return number
     }
 
     const flag = (array: any) => {
@@ -63,24 +79,28 @@ const Canvas = () => {
       const x = Math.floor(event.clientX / size)
       const y = Math.floor(event.clientY / size)
 
-      if (array[y][x].mine === 0) {
-        array[y][x].mine = 1
-        array[y][x].number = 0
+      if (array[y][x].flag === false) {
+        array[y][x].flag = true
+        array[y][x].field = false
       } else {
-        array[y][x].mine = 0
-        array[y][x].number = 1
+        array[y][x].flag = false
+        array[y][x].field = true
       }
     }
 
     const paint = (array: any) => {
       for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
-          if (array[i][j].mine === 1) {
+          if (array[i][j].flag === true) {
             ctx.fillStyle = 'black'
             ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
           } else {
+            const number = numberOfBombs(i, j, array)
             ctx.fillStyle = 'white'
             ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
+            ctx.fillStyle = 'black'
+            ctx.font = `${fontSize}px open-sans`
+            ctx.fillText(`${number}`, array[i][j].x * size + 7, array[i][j].y * size + size, size/2)
           }
         }
       }
