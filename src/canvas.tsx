@@ -18,7 +18,7 @@ const Canvas = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const size = 32
-    const fontSize = 12
+    const fontSize = size / 2
     const width = window.innerWidth / size
     const height = window.innerHeight / size
 
@@ -63,14 +63,14 @@ const Canvas = () => {
 
     const numberOfBombs = (i: number, j: number, array: any) => {
       let number: number = 0
-      if (array[i - 1][j - 1] !== undefined && array[i - 1][j - 1].bomb === true) { number++ }
-      if (array[i - 1][j] !== undefined && array[i - 1][j].bomb === true) { number++ }
-      if (array[i][j - 1] !== undefined && array[i][j - 1].bomb === true) { number++ }
-      if (array[i + 1][j - 1] !== undefined && array[i + 1][j - 1].bomb === true) { number++ }
-      if (array[i - 1][j + 1] !== undefined && array[i - 1][j + 1].bomb === true) { number++ }
-      if (array[i + 1][j + 1] !== undefined && array[i + 1][j + 1].bomb === true) { number++ }
-      if (array[i + 1][j] !== undefined && array[i + 1][j].bomb === true) { number++ }
-      if (array[i][j + 1] !== undefined && array[i][j + 1].bomb === true) { number++ }
+      if (undefined !== array[i - 1][j - 1] && array[i - 1][j - 1].bomb === true) { number++ }
+      if (undefined !== array[i - 1][j] && array[i - 1][j].bomb === true) { number++ }
+      if (undefined !== array[i][j - 1] && array[i][j - 1].bomb === true) { number++ }
+      if (undefined !== array[i + 1][j - 1] && array[i + 1][j - 1].bomb === true) { number++ }
+      if (undefined !== array[i - 1][j + 1] && array[i - 1][j + 1].bomb === true) { number++ }
+      if (undefined !== array[i + 1][j + 1] && array[i + 1][j + 1].bomb === true) { number++ }
+      if (undefined !== array[i + 1][j]  && array[i + 1][j].bomb === true) { number++ }
+      if (undefined !== array[i][j + 1]&& array[i][j + 1].bomb === true) { number++ }
       return number
     }
 
