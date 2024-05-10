@@ -60,17 +60,29 @@ const Canvas = () => {
         }
       }
     }
-
+  
     const numberOfBombs = (i: number, j: number, array: any) => {
       let number: number = 0
-      if (undefined !== array[i - 1][j - 1] && array[i - 1][j - 1].bomb === true) { number++ }
-      if (undefined !== array[i - 1][j] && array[i - 1][j].bomb === true) { number++ }
-      if (undefined !== array[i][j - 1] && array[i][j - 1].bomb === true) { number++ }
-      if (undefined !== array[i + 1][j - 1] && array[i + 1][j - 1].bomb === true) { number++ }
-      if (undefined !== array[i - 1][j + 1] && array[i - 1][j + 1].bomb === true) { number++ }
-      if (undefined !== array[i + 1][j + 1] && array[i + 1][j + 1].bomb === true) { number++ }
-      if (undefined !== array[i + 1][j]  && array[i + 1][j].bomb === true) { number++ }
-      if (undefined !== array[i][j + 1]&& array[i][j + 1].bomb === true) { number++ }
+      const numRows = array.length
+      const numCols = array[0].length
+  
+      const isValidIndex = (x: number, y: number) => {
+        return x >= 0 && x < numRows && y >= 0 && y < numCols
+      };
+  
+      const isFlagged = (x: number, y: number) => {
+        return isValidIndex(x, y) && array[x][y].flag
+      };
+  
+      if (isFlagged(i - 1, j - 1)) { number++ }
+      if (isFlagged(i - 1, j)) { number++ }
+      if (isFlagged(i, j - 1)) { number++ }
+      if (isFlagged(i + 1, j - 1)) { number++ }
+      if (isFlagged(i - 1, j + 1)) { number++ }
+      if (isFlagged(i + 1, j + 1)) { number++ }
+      if (isFlagged(i + 1, j)) { number++ }
+      if (isFlagged(i, j + 1)) { number++ }
+  
       return number
     }
 
@@ -100,7 +112,9 @@ const Canvas = () => {
             ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
             ctx.fillStyle = 'black'
             ctx.font = `${fontSize}px open-sans`
-            ctx.fillText(`${number}`, array[i][j].x * size + 7, array[i][j].y * size + size, size/2)
+            if (number !== 0) {
+              ctx.fillText(`${number}`, array[i][j].x * size + (size / 3), array[i][j].y * size + size / 1.5, size / 2)
+            }
           }
         }
       }
