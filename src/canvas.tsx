@@ -119,13 +119,16 @@ const Canvas = () => {
     const paint = (array: any) => {
       for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
+          // flag
           if(array[i][j].flag === true && (i + j) % 2 === 0) {
             ctx.fillStyle = '#A5DC53'
             ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
           } else if(array[i][j].flag === true && (i + j) % 2 !== 0) {
             ctx.fillStyle = '#9DD64C'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
-          } else if((i + j) % 2 === 0) {
+            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size) 
+          } 
+          // other
+          else if((i + j) % 2 === 0) {
             const number = numberOfMine(i, j, array)
             ctx.fillStyle = '#A5DC53'
             ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
