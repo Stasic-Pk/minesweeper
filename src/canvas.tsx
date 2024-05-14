@@ -19,12 +19,16 @@ const Canvas = () => {
 
     // minesweeper
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     const size = 32
     const fontSize = size / 2
-    const width = window.innerWidth / size
-    const height = window.innerHeight / size
+    const width = 10
+    const height = 10
+
+    const centerX = Math.floor(window.innerWidth / 2 - (width * size) / 2)
+    const centerY = Math.floor(window.innerHeight / 2 - (height * size) / 2)
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
 
     const cells: {
       mine: boolean,
@@ -94,8 +98,8 @@ const Canvas = () => {
 
     const flagField = (array: any) => {
       const event = window.event as MouseEvent
-      const x = Math.floor(event.clientX / size)
-      const y = Math.floor(event.clientY / size)
+      const x = Math.floor((event.clientX - centerX) / size)
+      const y = Math.floor((event.clientY - centerY) / size)
 
       if (array[y][x].flag === false && array[y][x].open === false) {
         array[y][x].flag = true
@@ -133,14 +137,16 @@ const Canvas = () => {
 
     const openField = (array: any) => {
       const event = window.event as MouseEvent
-      const x = Math.floor(event.clientX / size)
-      const y = Math.floor(event.clientY / size)
+      const x = Math.floor((event.clientX - centerX) / size)
+      const y = Math.floor((event.clientY - centerY) / size)
 
       if (array[y][x].mine === false) {
         array[y][x].open = true
         chainOpen(y, x, array)
       } else if(array[y][x].flag === false) {
         console.log("you loose")
+      } else {
+        return
       }
     }
 
@@ -150,49 +156,37 @@ const Canvas = () => {
           // flag
           if(array[i][j].flag === true && (i + j) % 2 === 0) {
             ctx.fillStyle = '#EA3A1B'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
+            ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
           } else if(array[i][j].flag === true && (i + j) % 2 !== 0) {
             ctx.fillStyle = '#e82e20'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size) 
-          } 
-          // open
-          else if((i + j) % 2 === 0 && array[i][j].open === false) {
-            const number = numberOfMine(i, j, array)
-            ctx.fillStyle = '#A5DC53'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
-            ctx.fillStyle = 'black'
-            ctx.font = `${fontSize}px open-sans`
-            if (number !== 0 && array[i][j].mine === false && array[i][j].open === true) {
-              ctx.fillText(`${number}`, array[i][j].x * size + (size / 3), array[i][j].y * size + size / 1.5, size / 2)
-            }
-          } else if((i + j) % 2 !== 0 && array[i][j].open === false){
-            const number = numberOfMine(i, j, array)
-            ctx.fillStyle = '#9DD64C'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
-            ctx.fillStyle = 'black'
-            ctx.font = `${fontSize}px open-sans`
-            if (number !== 0 && array[i][j].mine === false && array[i][j].open === true) {
-              ctx.fillText(`${number}`, array[i][j].x * size + (size / 3), array[i][j].y * size + size / 1.5, size / 2)
-            }
+            ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size) 
           } 
           // not open
+          else if((i + j) % 2 === 0 && array[i][j].open === false) {
+            ctx.fillStyle = '#A5DC53'
+            ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
+          } else if((i + j) % 2 !== 0 && array[i][j].open === false){
+            ctx.fillStyle = '#9DD64C'
+            ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
+          } 
+          // open
           else if((i + j) % 2 === 0 && array[i][j].open === true) {
             const number = numberOfMine(i, j, array)
             ctx.fillStyle = '#E1C4A0'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
+            ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
             ctx.fillStyle = 'black'
             ctx.font = `${fontSize}px open-sans`
             if (number !== 0 && array[i][j].mine === false && array[i][j].open === true) {
-              ctx.fillText(`${number}`, array[i][j].x * size + (size / 3), array[i][j].y * size + size / 1.5, size / 2)
+              ctx.fillText(`${number}`, centerX + (array[i][j].x * size + (size / 3)), centerY + (array[i][j].y * size + size / 1.5), size / 2)
             }
           } else if((i + j) % 2 !== 0 && array[i][j].open === true){
             const number = numberOfMine(i, j, array)
             ctx.fillStyle = '#D3BA9A'
-            ctx.fillRect(array[i][j].x * size, array[i][j].y * size, size, size)
+            ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
             ctx.fillStyle = 'black'
             ctx.font = `${fontSize}px open-sans`
             if (number !== 0 && array[i][j].mine === false && array[i][j].open === true) {
-              ctx.fillText(`${number}`, array[i][j].x * size + (size / 3), array[i][j].y * size + size / 1.5, size / 2)
+              ctx.fillText(`${number}`, centerX + (array[i][j].x * size + (size / 3)), centerY + (array[i][j].y * size + size / 1.5), size / 2)
             }
           } 
         }
