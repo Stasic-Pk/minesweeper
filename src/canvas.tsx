@@ -21,8 +21,9 @@ const Canvas = () => {
 
     const size = 32
     const fontSize = size / 2
-    const width = 10
-    const height = 10
+    const width = 16
+    const height = 16
+    const borderSize = (width + height) / 4
 
     const centerX = Math.floor(window.innerWidth / 2 - (width * size) / 2)
     const centerY = Math.floor(window.innerHeight / 2 - (height * size) / 2)
@@ -101,10 +102,12 @@ const Canvas = () => {
       const x = Math.floor((event.clientX - centerX) / size)
       const y = Math.floor((event.clientY - centerY) / size)
 
-      if (array[y][x].flag === false && array[y][x].open === false) {
-        array[y][x].flag = true
-      } else {
-        array[y][x].flag = false
+      if (x >= 0 && x < array.length && y >= 0 && y < array[0].length) {
+        if (array[y][x].flag === false && array[y][x].open === false) {
+          array[y][x].flag = true
+        } else {
+          array[y][x].flag = false
+        }
       }
     }
 
@@ -122,7 +125,7 @@ const Canvas = () => {
           return true
         }
       }
-
+      
       if (number === 0) {
         if (isOpen(i - 1, j - 1)) { array[i - 1][j - 1].open = true; chainOpen(i - 1, j - 1, array) }
         if (isOpen(i - 1, j)) { array[i - 1][j].open = true; chainOpen(i - 1, j, array) }
@@ -133,24 +136,32 @@ const Canvas = () => {
         if (isOpen(i + 1, j)) { array[i + 1][j].open = true; chainOpen(i + 1, j, array) }
         if (isOpen(i, j + 1)) { array[i][j + 1].open = true; chainOpen(i, j + 1, array) }
       }
-    }
 
+      if (array[i][j].flag === true) {
+        array[i][j].flag = false
+      }
+    }
+    
     const openField = (array: any) => {
       const event = window.event as MouseEvent
       const x = Math.floor((event.clientX - centerX) / size)
       const y = Math.floor((event.clientY - centerY) / size)
 
-      if (array[y][x].mine === false) {
-        array[y][x].open = true
-        chainOpen(y, x, array)
-      } else if(array[y][x].flag === false) {
-        console.log("you loose")
-      } else {
-        return
+      if (x >= 0 && x < array.length && y >= 0 && y < array[0].length) {
+        if (array[y][x].mine === false && array[y][x].flag === false) {
+          array[y][x].open = true
+          chainOpen(y, x, array)
+        } else if(array[y][x].flag === false) {
+          console.log("you loose")
+        } else {
+          return
+        }
       }
     }
 
     const paint = (array: any) => {
+      ctx.fillStyle = '#BC6518'
+      ctx.fillRect(centerX - borderSize, centerY - borderSize, size * array.length + borderSize * 2, size * array[0].length + borderSize * 2)
       for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
           // flag
