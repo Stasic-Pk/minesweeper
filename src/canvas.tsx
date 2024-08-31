@@ -19,6 +19,7 @@ const Canvas = () => {
 
     // minesweeper
 
+    let gameOver: boolean = false
     const size = 32
     const fontSize = size / 2
     const width = 16
@@ -33,7 +34,6 @@ const Canvas = () => {
 
     const cells: {
       mine: boolean,
-      field: boolean,
       flag: boolean,
       open: boolean,
       x: number,
@@ -54,7 +54,6 @@ const Canvas = () => {
       for(let j = 0; j < width; j++) {
         cells[i][j] = {
           mine: false,
-          field: true,
           flag: false,
           open: false,
           x: j,
@@ -66,9 +65,6 @@ const Canvas = () => {
     for(let i = 0; i < height; i++) {
       for(let j = 0; j < width; j++) {
         cells[i][j].mine = getRandomInt(2)
-        if(cells[i][j].mine === true) {
-          cells[i][j].field = false
-        }
       }
     }
   
@@ -103,7 +99,7 @@ const Canvas = () => {
       const y = Math.floor((event.clientY - centerY) / size)
 
       if (x >= 0 && x < array.length && y >= 0 && y < array[0].length) {
-        if (array[y][x].flag === false && array[y][x].open === false) {
+        if (!array[y][x].flag && !array[y][x].open) {
           array[y][x].flag = true
         } else {
           array[y][x].flag = false
@@ -121,7 +117,7 @@ const Canvas = () => {
         return x >= 0 && x < numRows && y >= 0 && y < numCols
       }
       const isOpen = (x: number, y: number) => {
-        if (isValidIndex(x, y) && array[x][y].open !== true) {
+        if (isValidIndex(x, y) && !array[x][y].open) {
           return true
         }
       }
@@ -137,84 +133,131 @@ const Canvas = () => {
         if (isOpen(i, j + 1)) { array[i][j + 1].open = true; chainOpen(i, j + 1, array) }
       }
 
-      if (array[i][j].flag === true) {
+      if (array[i][j].flag) {
         array[i][j].flag = false
       }
     }
     
     const openField = (array: any) => {
+      if (gameOver === true) return
+
       const event = window.event as MouseEvent
       const x = Math.floor((event.clientX - centerX) / size)
       const y = Math.floor((event.clientY - centerY) / size)
 
       if (x >= 0 && x < array.length && y >= 0 && y < array[0].length) {
-        if (array[y][x].mine === false && array[y][x].flag === false) {
+        const cell = array[y][x]
+
+        if (!cell.mine && !cell.flag) {
           array[y][x].open = true
           chainOpen(y, x, array)
-        } else if(array[y][x].flag === false) {
-          console.log("you loose")
-        } else {
-          return
+        } else if(cell.mine && !cell.flag) {
+          gameOver = true
+          console.log("you explose!")
+
+          ctx.fillStyle = 'rgba(255, 85, 85, 0.40)'
+          ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
+          ctx.fillStyle = 'black'
+          ctx.font = `${size * 2}px open-sans`
+          ctx.fillText("you explose!", window.innerWidth / 2 - size * 5, window.innerHeight / 2)
         }
       }
     }
 
     const paint = (array: any) => {
+      ctx.fillStyle = "white"
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
       ctx.fillStyle = '#BC6518'
       ctx.fillRect(centerX - borderSize, centerY - borderSize, size * array.length + borderSize * 2, size * array[0].length + borderSize * 2)
+      
+      let mineCount: number = 0
+      let flagCount: number = 0
+      
       for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
+          if (array[i][j].mine) {
+            mineCount++
+          }
+          if (array[i][j].flag) {
+            flagCount++
+          }
+
+
           // flag
-          if(array[i][j].flag === true && (i + j) % 2 === 0) {
+          if(array[i][j].flag && (i + j) % 2 === 0) {
             ctx.fillStyle = '#EA3A1B'
             ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
-          } else if(array[i][j].flag === true && (i + j) % 2 !== 0) {
+          } else if(array[i][j].flag && (i + j) % 2 !== 0) {
             ctx.fillStyle = '#e82e20'
             ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size) 
           } 
           // not open
-          else if((i + j) % 2 === 0 && array[i][j].open === false) {
+          else if((i + j) % 2 === 0 && !array[i][j].open) {
             ctx.fillStyle = '#A5DC53'
             ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
-          } else if((i + j) % 2 !== 0 && array[i][j].open === false){
+          } else if((i + j) % 2 !== 0 && !array[i][j].open){
             ctx.fillStyle = '#9DD64C'
             ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
           } 
           // open
-          else if((i + j) % 2 === 0 && array[i][j].open === true) {
+          else if((i + j) % 2 === 0 && array[i][j].open) {
             const number = numberOfMine(i, j, array)
             ctx.fillStyle = '#E1C4A0'
             ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
             ctx.fillStyle = 'black'
             ctx.font = `${fontSize}px open-sans`
-            if (number !== 0 && array[i][j].mine === false && array[i][j].open === true) {
+            if (number !== 0 && !array[i][j].mine && array[i][j].open) {
               ctx.fillText(`${number}`, centerX + (array[i][j].x * size + (size / 3)), centerY + (array[i][j].y * size + size / 1.5), size / 2)
             }
-          } else if((i + j) % 2 !== 0 && array[i][j].open === true){
+          } else if((i + j) % 2 !== 0 && array[i][j].open){
             const number = numberOfMine(i, j, array)
             ctx.fillStyle = '#D3BA9A'
             ctx.fillRect(centerX + array[i][j].x * size, centerY + array[i][j].y * size, size, size)
             ctx.fillStyle = 'black'
             ctx.font = `${fontSize}px open-sans`
-            if (number !== 0 && array[i][j].mine === false && array[i][j].open === true) {
+            if (number !== 0 && !array[i][j].mine && array[i][j].open) {
               ctx.fillText(`${number}`, centerX + (array[i][j].x * size + (size / 3)), centerY + (array[i][j].y * size + size / 1.5), size / 2)
             }
           } 
         }
       }
+
+      ctx.fillStyle = 'black'
+      ctx.font = `${fontSize}px open-sans`
+      ctx.fillText(`${mineCount - flagCount}`, size, size)
     }
+    
+    const win = ((array: any[][]) => {
+      for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+          if(!array[i][j].open && !array[i][j].mine) {
+            return
+          }
+        }
+      }
+      ctx.fillStyle = 'black'
+      ctx.font = `${size * 2}px open-sans`
+      ctx.fillText("you win!", window.innerWidth / 2 - size * 3.5, window.innerHeight / 2)
+    })
 
     paint(cells)
 
-    window.addEventListener('mousedown', function start() {
+    const handleMouseDown = (() => {
       const event = window.event as MouseEvent
       if (event.button === 0) {
         openField(cells)
       } else if(event.button === 2) {
         flagField(cells)
       }
-      paint(cells)
+      if (!gameOver) paint(cells)
+      win(cells)
     })
+
+    canvas.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      canvas.removeEventListener('mousedown', handleMouseDown);
+    }
 
   }, [])
   return  <canvas ref = { canvasRef }/>
